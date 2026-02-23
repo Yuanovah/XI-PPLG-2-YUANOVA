@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silent Snap - Elegant Edition</title>
+  <link rel="icon" type="image/png" href="unnamed-removebg-preview.png">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Indie+Flower&family=Poppins:wght@300;400;600&display=swap');
+
+    :root {
+      --primary-border: 1px solid rgba(0, 0, 0, 0.1);
+      --sketch-font: 'Indie Flower', cursive;
+      --body-font: 'Poppins', sans-serif;
+      --accent-gold: #c5a059;
+      --glass-bg: rgba(255, 255, 255, 0.7);
+      --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+      --body-bg: #f8f9fa;
+    }
+
+    body {
+      background: var(--body-bg);
+      font-family: var(--body-font);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      overflow-x: hidden;
+      color: #2d3436;
+    }
+
+    #welcome-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 1s ease-out, visibility 1s;
+    }
+
+    .welcome-content {
+      text-align: center;
+      transform: translateY(-50px);
+      animation: fadeInDown 1.5s ease-out;
+    }
+
+    .welcome-content p {
+      font-family: var(--body-font);
+      font-size: 0.85rem;
+      letter-spacing: 4px;
+      color: #888;
+      text-transform: uppercase;
+      font-weight: 300;
+      margin: 0;
+    }
+
+    .welcome-content h1 {
+      font-family: var(--sketch-font);
+      font-size: 4rem;
+      letter-spacing: 5px;
+      color: #1a1a1a;
+      margin: 15px 0;
+      text-transform: uppercase;
+    }
+
+    .enter-btn {
+      margin-top: 30px;
+      padding: 15px 40px;
+      background: transparent;
+      border: 1px solid #1a1a1a;
+      border-radius: 50px;
+      color: #1a1a1a;
+      cursor: pointer;
+      font-size: 0.8rem;
+      letter-spacing: 3px;
+      font-family: var(--body-font);
+      text-transform: uppercase;
+      transition: all 0.4s;
+    }
+
+    .enter-btn:hover {
+      background: #1a1a1a;
+      color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    @keyframes fadeInDown {
+      0% { opacity: 0; transform: translateY(-80px); }
+      100% { opacity: 1; transform: translateY(-50px); }
+    }
+
+    #landing-page, #frame-selection, #theme-selection, #booth-container, #result-page {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-top: 50px;
+      width: 100%;
+    }
+
+    body.app-ready #landing-page { display: flex; }
+
+    #landing-page h1 {
+      font-weight: 300;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      font-size: 1.5rem;
+      margin-bottom: 50px;
+      color: #1a1a1a;
+    }
+
+    .menu-grid {
+      display: flex;
+      gap: 40px;
+      padding: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      perspective: 1000px;
+    }
+
+    .card {
+      position: relative;
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 40px 30px;
+      width: 260px;
+      cursor: pointer;
+      border-radius: 20px;
+      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      box-shadow: var(--glass-shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 4px;
+      background: var(--accent-gold);
+      transform: scaleX(0);
+      transition: transform 0.4s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-15px) rotateX(5deg);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .card-icon {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      transition: 0.4s;
+    }
+
+    .card:hover .card-icon {
+      transform: scale(1.1);
+    }
+
+    .card h2 {
+      font-family: var(--body-font);
+      font-weight: 600;
+      font-size: 1.2rem;
+      margin: 10px 0;
+      letter-spacing: 1px;
+    }
+
+    .card p {
+      font-family: var(--body-font);
+      font-size: 0.85rem;
+      color: #636e72;
+      line-height: 1.6;
+      margin-top: 5px;
+    }
+
+    .theme-circle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,0.1);
+      margin: 10px auto;
+    }
+
+    #booth-container { width: 95%; max-width: 1200px; }
+
+    .display-screen {
+      width: 100%;
+      height: 60px;
+      border-radius: 15px;
+      background: white;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+      font-weight: 400;
+      font-family: var(--body-font);
+      box-shadow: var(--glass-shadow);
+    }
+
+    .main-layout {
+      display: flex;
+      gap: 20px;
+      align-items: stretch;
+      width: 100%;
+    }
+
+    .side-panel {
+      flex: 1;
+      border-radius: 15px;
+      background: #fff;
+      padding: 15px;
+      text-align: center;
+      display: none;
+      font-family: var(--body-font);
+      box-shadow: var(--glass-shadow);
+      border: var(--primary-border);
+    }
+
+    .guide-btn-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      margin-top: 15px;
+    }
+
+    .guide-letter-btn {
+      padding: 10px 5px;
+      border: 1px solid #eee;
+      background: #fdfdfd;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .guide-letter-btn:hover { background: #f0f0f0; }
+    .guide-letter-btn.active { background: var(--accent-gold); color: white; border-color: var(--accent-gold); }
+
+    .camera-box {
+      flex: 2;
+      border-radius: 15px;
+      padding: 15px;
+      background: #fff;
+      position: relative;
+      box-shadow: var(--glass-shadow);
+      border: var(--primary-border);
+    }
+
+    .canvas-container {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #eee;
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+
+    #canvas { width: 100%; height: 100%; object-fit: cover; }
+
+    .control-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      font-family: var(--body-font);
+    }
+
+    .box-section {
+      border-radius: 15px;
+      background: #fff;
+      padding: 15px;
+      text-align: center;
+      box-shadow: var(--glass-shadow);
+      border: var(--primary-border);
+    }
+
+    .status-box-title { margin: 0; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; font-family: var(--body-font); }
+
+    .detected-letter {
+      font-size: 3rem;
+      color: var(--accent-gold);
+      font-weight: 600;
+      margin: 10px 0;
+      font-family: var(--body-font);
+    }
+
+    .sentence-box {
+      background: #f8f9fa;
+      border-radius: 10px;
+      min-height: 60px;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #eee;
+      word-break: break-all;
+      font-family: var(--sketch-font);
+    }
+
+    .action-btn {
+      font-family: var(--body-font);
+      border: 1px solid #1a1a1a;
+      background: #fff;
+      padding: 12px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-radius: 50px;
+      width: 100%;
+      transition: all 0.3s;
+    }
+
+    .action-btn:hover { background: #1a1a1a; color: #fff; }
+    .btn-red { background: var(--accent-gold); color: white; border: none; }
+    .btn-red:hover { background: #b08d4a; color: white; }
+
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    #strip-preview {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+      justify-items: center;
+    }
+
+    .preview-img-container {
+      position: relative;
+      border-radius: 6px;
+      width: 80px;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      cursor: pointer;
+      transition: 0.2s;
+      border: 2px solid transparent;
+    }
+
+    .preview-img-container.selected {
+      border: 2px solid var(--accent-gold);
+      box-shadow: 0 0 10px rgba(197, 160, 89, 0.5);
+    }
+
+    .preview-img-container img { width: 100%; height: 100%; object-fit: cover; }
+
+    #timer-overlay {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 150px; color: white;
+      display: none; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); z-index: 10;
+      font-family: var(--sketch-font);
+    }
+
+    #result-page { display: none; flex-direction: column; align-items: center; padding-bottom: 50px; }
+    .final-strip { 
+      padding: 25px; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 15px; 
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .final-strip img { width: 300px; border-radius: 5px; }
+
+    #video { display: none; }
+
+    .logo-container {
+      margin-bottom: 15px; /* Jarak ke teks diperkecil sedikit */
+      display: flex;
+      justify-content: center;
+    }
+
+    .main-logo {
+      width: 150px; /* Logo diperkecil sesuai permintaan */
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 5px 15px rgba(0,0,0,0.05));
+    }
+  </style>
+</head>
+<body>
+
+<div id="welcome-overlay">
+    <div class="welcome-content">
+      <div class="logo-container">
+        <img src="unnamed-removebg-preview.png" alt="Logo Silent Snap" class="main-logo">
+      </div>
+      
+      <p>WELCOME TO</p>
+      <h1>SILENT SNAP</h1>
+      <p>WHERE HANDS SPEAK & MEMORIES BLOOM</p>
+      <button class="enter-btn" onclick="enterApp()">ENTER EXPERIENCE</button>
+    </div>
+  </div>
+
+  <script>
+    function enterApp() {
+      const overlay = document.getElementById('welcome-overlay');
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        overlay.style.visibility = 'hidden';
+        document.body.classList.add('app-ready');
+      }, 1000);
+    }
+  </script>
+
+</body>
+</html>
+
+  <div id="landing-page">
+    <p style="letter-spacing: 3px; color: var(--accent-gold); font-size: 0.8rem; margin-top: 50px; margin-bottom: 10px;">PREMIUM PHOTO EXPERIENCE</p>
+    <h1>Select Module</h1>
+    
+    <div class="menu-grid">
+      <div class="card" onclick="showFrameSelection('timer')">
+        <div class="card-icon">✋</div>
+        <h2>AUTO-TIMER</h2>
+        <p>Capture elegance with a simple palm gesture.</p>
+        <span style="margin-top: 20px; font-size: 0.7rem; color: var(--accent-gold);">DISCOVER</span>
+      </div>
+
+      <div class="card" onclick="startBooth('sign', 1)">
+        <div class="card-icon">🤟</div>
+        <h2>SIGN LANGUAGE</h2>
+        <p>Express yourself through real-time BISINDO detection.</p>
+        <span style="margin-top: 20px; font-size: 0.7rem; color: var(--accent-gold);">EXPLORE</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="frame-selection">
+    <h1>How many photos?</h1>
+    <div class="menu-grid">
+      <div class="card" onclick="chooseTheme(1)"><h2>Single</h2><p>1 Classic Shot</p></div>
+      <div class="card" onclick="chooseTheme(4)"><h2>Strip</h2><p>4 Vertical Shots</p></div>
+    </div>
+    <button onclick="location.reload()" class="action-btn" style="width: 200px; margin-top: 20px;">Back</button>
+  </div>
+
+  <div id="theme-selection">
+    <h1>Choose Your Frame Color</h1>
+    <div class="menu-grid">
+      <div class="card" onclick="setTheme('#ffc0cb')"><div class="theme-circle" style="background:#ffc0cb;"></div>Pink</div>
+      <div class="card" onclick="setTheme('#e6e6fa')"><div class="theme-circle" style="background:#e6e6fa;"></div>Lavender</div>
+      <div class="card" onclick="setTheme('#add8e6')"><div class="theme-circle" style="background:#add8e6;"></div>Blue</div>
+      <div class="card" onclick="setTheme('#ffffff')"><div class="theme-circle" style="background:#ffffff;"></div>White</div>
+      <div class="card" onclick="setTheme('#333333')"><div class="theme-circle" style="background:#333333;"></div>Dark</div>
+    </div>
+    <button onclick="showFrameSelection('timer')" class="action-btn" style="width: 200px; margin-top: 20px;">Back</button>
+  </div>
+
+  <div id="booth-container">
+    <div class="display-screen" id="status-text">INITIALIZING...</div>
+    
+    <div class="main-layout">
+      <div id="sign-guide" class="side-panel">
+        <h3 style="font-weight: 600; letter-spacing: 1px; margin-bottom: 5px;">HURUF BISINDO</h3>
+        <p style="font-size: 0.7rem; color: #888;">Klik huruf untuk kerangka panduan</p>
+        <hr style="border: 0; border-top: 1px solid #eee;">
+        <div class="guide-btn-grid" id="alphabet-btns"></div>
+        <div id="guide-hint-text" style="margin-top:15px; font-size:0.8rem; color:var(--accent-gold); font-style:italic;"></div>
+      </div>
+
+      <div class="camera-box" id="camera-box">
+        <div class="canvas-container">
+          <canvas id="canvas"></canvas>
+          <div id="timer-overlay">3</div>
+        </div>
+      </div>
+
+      <div class="control-panel">
+        <div class="box-section" id="status-box-right">
+          <p class="status-box-title" id="right-panel-title">DETECTED LETTER</p>
+          <div id="current-letter" class="detected-letter">-</div>
+          <div id="timer-actions" style="display: none;">
+             <p style="font-size: 0.85rem; margin-bottom: 10px; color: #555;">Show Palm ✋ to take photo</p>
+             <button class="action-btn btn-red" id="btn-delete-photo" onclick="deleteSelectedPhoto()">DELETE SELECTED</button>
+          </div>
+        </div>
+
+        <div class="box-section" id="context-box">
+          <p class="status-box-title" id="context-title">SENTENCE</p>
+          <div id="sentence-output" class="sentence-box"></div>
+          <div id="photo-count-status" style="display: none; font-size: 1.2rem; font-weight: 600; margin-top: 15px;">
+            Photos: <span id="captured-count">0</span> / <span id="total-count">0</span>
+          </div>
+        </div>
+
+        <div id="sign-controls">
+          <button class="action-btn btn-red" style="margin-bottom:10px" onclick="addLetterManual()">ADD TO SENTENCE</button>
+          <div class="btn-group">
+            <button class="action-btn" onclick="addSpace()">SPACE</button>
+            <button class="action-btn" onclick="deleteLast()">DELETE</button>
+          </div>
+          <button class="action-btn" style="margin-top:10px" onclick="clearAll()">CLEAR ALL</button>
+        </div>
+
+        <div class="box-section">
+          <p class="status-box-title">PREVIEW</p>
+          <div id="strip-preview"></div>
+          <button id="finish-btn" class="action-btn" style="display:none; margin-top:15px; background:#4CAF50; color:white; border:none;" onclick="showFinalGallery()">FINISH & SAVE</button>
+        </div>
+
+        <button class="action-btn" onclick="location.reload()">EXIT & RESTART</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="result-page">
+    <h1>Your Memories!</h1>
+    <div class="final-strip" id="final-strip-container"></div>
+    <button onclick="location.reload()" class="action-btn" style="width: 250px; margin-top:30px">Start New Session</button>
+  </div>
+
+  <video id="video" playsinline></video>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+  <script>
+    // --- DATABASE GHOST GUIDE LENGKAP A-Z ---
+    const ghostGuides = {
+      'A': [{x:0.5,y:0.8},{x:0.65,y:0.75},{x:0.7,y:0.65},{x:0.7,y:0.55},{x:0.68,y:0.45},{x:0.55,y:0.55},{x:0.55,y:0.45},{x:0.55,y:0.4},{x:0.55,y:0.35},{x:0.5,y:0.55},{x:0.5,y:0.45},{x:0.5,y:0.4},{x:0.5,y:0.35},{x:0.45,y:0.55},{x:0.45,y:0.45},{x:0.45,y:0.4},{x:0.45,y:0.35},{x:0.4,y:0.55},{x:0.4,y:0.45},{x:0.4,y:0.4},{x:0.4,y:0.35}],
+      'B': [{x:0.5,y:0.8},{x:0.45,y:0.75},{x:0.43,y:0.7},{x:0.45,y:0.65},{x:0.48,y:0.6},{x:0.55,y:0.55},{x:0.55,y:0.45},{x:0.55,y:0.35},{x:0.55,y:0.25},{x:0.5,y:0.55},{x:0.5,y:0.45},{x:0.5,y:0.35},{x:0.5,y:0.25},{x:0.45,y:0.55},{x:0.45,y:0.45},{x:0.45,y:0.35},{x:0.45,y:0.25},{x:0.4,y:0.55},{x:0.4,y:0.45},{x:0.4,y:0.35},{x:0.4,y:0.25}],
+      'C': [{x:0.5,y:0.8},{x:0.65,y:0.75},{x:0.7,y:0.65},{x:0.65,y:0.55},{x:0.6,y:0.5},{x:0.5,y:0.5},{x:0.4,y:0.45},{x:0.35,y:0.5},{x:0.32,y:0.55},{x:0.48,y:0.5},{x:0.38,y:0.45},{x:0.33,y:0.5},{x:0.3,y:0.55},{x:0.46,y:0.5},{x:0.36,y:0.45},{x:0.31,y:0.5},{x:0.28,y:0.55},{x:0.44,y:0.5},{x:0.34,y:0.45},{x:0.29,y:0.5},{x:0.26,y:0.55}],
+      'D': [{x:0.5,y:0.8},{x:0.55,y:0.75},{x:0.58,y:0.65},{x:0.55,y:0.6},{x:0.5,y:0.55},{x:0.5,y:0.55},{x:0.5,y:0.45},{x:0.5,y:0.35},{x:0.5,y:0.25},{x:0.48,y:0.55},{x:0.45,y:0.6},{x:0.42,y:0.63},{x:0.4,y:0.65},{x:0.43,y:0.55},{x:0.4,y:0.6},{x:0.37,y:0.63},{x:0.35,y:0.65},{x:0.38,y:0.55},{x:0.35,y:0.6},{x:0.32,y:0.63},{x:0.3,y:0.65}],
+      'E': [{x:0.5,y:0.8},{x:0.4,y:0.75},{x:0.42,y:0.7},{x:0.45,y:0.68},{x:0.5,y:0.68},{x:0.55,y:0.65},{x:0.55,y:0.6},{x:0.5,y:0.6},{x:0.45,y:0.6},{x:0.5,y:0.65},{x:0.5,y:0.6},{x:0.45,y:0.6},{x:0.4,y:0.6},{x:0.45,y:0.65},{x:0.45,y:0.6},{x:0.4,y:0.6},{x:0.35,y:0.6},{x:0.4,y:0.65},{x:0.4,y:0.6},{x:0.35,y:0.6},{x:0.3,y:0.6}],
+      'F': [{x:0.5,y:0.8},{x:0.55,y:0.75},{x:0.5,y:0.65},{x:0.45,y:0.6},{x:0.4,y:0.55},{x:0.4,y:0.55},{x:0.38,y:0.58},{x:0.36,y:0.62},{x:0.34,y:0.65},{x:0.5,y:0.55},{x:0.5,y:0.45},{x:0.5,y:0.35},{x:0.5,y:0.25},{x:0.45,y:0.55},{x:0.45,y:0.45},{x:0.45,y:0.35},{x:0.45,y:0.25},{x:0.4,y:0.55},{x:0.4,y:0.45},{x:0.4,y:0.35},{x:0.4,y:0.25}],
+      'G': [{x:0.5,y:0.8},{x:0.6,y:0.75},{x:0.7,y:0.75},{x:0.75,y:0.75},{x:0.8,y:0.75},{x:0.6,y:0.65},{x:0.7,y:0.65},{x:0.75,y:0.65},{x:0.8,y:0.65},{x:0.55,y:0.65},{x:0.5,y:0.65},{x:0.45,y:0.65},{x:0.4,y:0.65},{x:0.5,y:0.65},{x:0.45,y:0.65},{x:0.4,y:0.65},{x:0.35,y:0.65},{x:0.45,y:0.65},{x:0.4,y:0.65},{x:0.35,y:0.65},{x:0.3,y:0.65}],
+      'H': [{x:0.5,y:0.8},{x:0.4,y:0.75},{x:0.42,y:0.7},{x:0.45,y:0.65},{x:0.48,y:0.6},{x:0.6,y:0.65},{x:0.7,y:0.65},{x:0.75,y:0.65},{x:0.8,y:0.65},{x:0.6,y:0.55},{x:0.7,y:0.55},{x:0.75,y:0.55},{x:0.8,y:0.55},{x:0.45,y:0.65},{x:0.4,y:0.65},{x:0.35,y:0.65},{x:0.3,y:0.65},{x:0.4,y:0.65},{x:0.35,y:0.65},{x:0.3,y:0.65},{x:0.25,y:0.65}],
+      'I': [{x:0.5,y:0.8},{x:0.55,y:0.75},{x:0.58,y:0.7},{x:0.55,y:0.65},{x:0.5,y:0.65},{x:0.53,y:0.65},{x:0.5,y:0.65},{x:0.48,y:0.65},{x:0.45,y:0.65},{x:0.48,y:0.65},{x:0.45,y:0.65},{x:0.43,y:0.65},{x:0.4,y:0.65},{x:0.43,y:0.65},{x:0.4,y:0.65},{x:0.38,y:0.65},{x:0.35,y:0.65},{x:0.38,y:0.55},{x:0.38,y:0.45},{x:0.38,y:0.35},{x:0.38,y:0.25}],
+      'J': [{x:0.5,y:0.8},{x:0.55,y:0.75},{x:0.58,y:0.7},{x:0.55,y:0.65},{x:0.5,y:0.65},{x:0.53,y:0.65},{x:0.5,y:0.65},{x:0.48,y:0.65},{x:0.45,y:0.65},{x:0.48,y:0.65},{x:0.45,y:0.65},{x:0.43,y:0.65},{x:0.4,y:0.65},{x:0.43,y:0.65},{x:0.4,y:0.65},{x:0.38,y:0.65},{x:0.35,y:0.65},{x:0.3,y:0.55},{x:0.25,y:0.45},{x:0.28,y:0.35},{x:0.35,y:0.3}],
+      'K': [{x:0.5,y:0.8},{x:0.55,y:0.65},{x:0.5,y:0.55},{x:0.45,y:0.5},{x:0.4,y:0.45},{x:0.55,y:0.55},{x:0.55,y:0.4},{x:0.55,y:0.3},{x:0.55,y:0.2},{x:0.45,y:0.55},{x:0.5,y:0.45},{x:0.55,y:0.35},{x:0.6,y:0.25},{x:0.45,y:0.65},{x:0.4,y:0.65},{x:0.35,y:0.65},{x:0.3,y:0.65},{x:0.4,y:0.65},{x:0.35,y:0.65},{x:0.3,y:0.65},{x:0.25,y:0.65}],
+      'L': [{x:0.5,y:0.8},{x:0.6,y:0.75},{x:0.7,y:0.75},{x:0.75,y:0.75},{x:0.8,y:0.75},{x:0.55,y:0.6},{x:0.55,y:0.45},{x:0.55,y:0.3},{x:0.55,y:0.2},{x:0.5,y:0.65},{x:0.5,y:0.65},{x:0.5,y:0.65},{x:0.5,y:0.65},{x:0.45,y:0.65},{x:0.45,y:0.65},{x:0.45,y:0.65},{x:0.45,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65}],
+      'M': [{x:0.5,y:0.8},{x:0.45,y:0.82},{x:0.4,y:0.84},{x:0.35,y:0.85},{x:0.3,y:0.85},{x:0.55,y:0.6},{x:0.55,y:0.7},{x:0.5,y:0.75},{x:0.45,y:0.78},{x:0.5,y:0.6},{x:0.5,y:0.7},{x:0.45,y:0.75},{x:0.4,y:0.78},{x:0.45,y:0.6},{x:0.45,y:0.7},{x:0.4,y:0.75},{x:0.35,y:0.78},{x:0.4,y:0.65},{x:0.4,y:0.7},{x:0.35,y:0.75},{x:0.3,y:0.78}],
+      'N': [{x:0.5,y:0.8},{x:0.45,y:0.82},{x:0.4,y:0.84},{x:0.35,y:0.85},{x:0.3,y:0.85},{x:0.55,y:0.6},{x:0.55,y:0.7},{x:0.5,y:0.75},{x:0.45,y:0.78},{x:0.5,y:0.6},{x:0.5,y:0.7},{x:0.45,y:0.75},{x:0.4,y:0.78},{x:0.45,y:0.65},{x:0.4,y:0.7},{x:0.35,y:0.75},{x:0.3,y:0.78},{x:0.4,y:0.65},{x:0.35,y:0.7},{x:0.3,y:0.75},{x:0.25,y:0.78}],
+      'O': [{x:0.5,y:0.8},{x:0.6,y:0.75},{x:0.62,y:0.65},{x:0.58,y:0.55},{x:0.5,y:0.5},{x:0.5,y:0.65},{x:0.42,y:0.55},{x:0.45,y:0.45},{x:0.5,y:0.5},{x:0.45,y:0.65},{x:0.38,y:0.55},{x:0.4,y:0.45},{x:0.5,y:0.5},{x:0.4,y:0.65},{x:0.33,y:0.55},{x:0.35,y:0.45},{x:0.5,y:0.5},{x:0.35,y:0.65},{x:0.28,y:0.55},{x:0.3,y:0.45},{x:0.5,y:0.5}],
+      'P': [{x:0.5,y:0.8},{x:0.55,y:0.7},{x:0.6,y:0.65},{x:0.65,y:0.65},{x:0.7,y:0.65},{x:0.5,y:0.65},{x:0.6,y:0.65},{x:0.7,y:0.65},{x:0.8,y:0.65},{x:0.45,y:0.65},{x:0.5,y:0.75},{x:0.55,y:0.8},{x:0.6,y:0.85},{x:0.4,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65},{x:0.35,y:0.65},{x:0.35,y:0.65},{x:0.35,y:0.65},{x:0.35,y:0.65}],
+      'Q': [{x:0.5,y:0.8},{x:0.6,y:0.85},{x:0.65,y:0.9},{x:0.65,y:0.95},{x:0.65,y:1.0},{x:0.6,y:0.65},{x:0.65,y:0.75},{x:0.65,y:0.8},{x:0.65,y:0.85},{x:0.5,y:0.65},{x:0.5,y:0.65},{x:0.5,y:0.65},{x:0.5,y:0.65},{x:0.45,y:0.65},{x:0.45,y:0.65},{x:0.45,y:0.65},{x:0.45,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65}],
+      'R': [{x:0.5,y:0.8},{x:0.4,y:0.75},{x:0.42,y:0.7},{x:0.45,y:0.68},{x:0.48,y:0.65},{x:0.55,y:0.55},{x:0.53,y:0.4},{x:0.5,y:0.3},{x:0.48,y:0.25},{x:0.5,y:0.55},{x:0.53,y:0.4},{x:0.55,y:0.3},{x:0.58,y:0.25},{x:0.45,y:0.65},{x:0.45,y:0.65},{x:0.45,y:0.65},{x:0.45,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65}],
+      'S': [{x:0.5,y:0.8},{x:0.4,y:0.7},{x:0.45,y:0.6},{x:0.55,y:0.6},{x:0.6,y:0.6},{x:0.55,y:0.65},{x:0.55,y:0.7},{x:0.5,y:0.72},{x:0.45,y:0.75},{x:0.5,y:0.65},{x:0.5,y:0.7},{x:0.45,y:0.72},{x:0.4,y:0.75},{x:0.45,y:0.65},{x:0.45,y:0.7},{x:0.4,y:0.72},{x:0.35,y:0.75},{x:0.4,y:0.65},{x:0.4,y:0.7},{x:0.35,y:0.72},{x:0.3,y:0.75}],
+      'T': [{x:0.5,y:0.8},{x:0.45,y:0.75},{x:0.48,y:0.65},{x:0.52,y:0.55},{x:0.55,y:0.5},{x:0.5,y:0.6},{x:0.55,y:0.65},{x:0.5,y:0.7},{x:0.45,y:0.72},{x:0.45,y:0.6},{x:0.4,y:0.65},{x:0.4,y:0.7},{x:0.4,y:0.72},{x:0.4,y:0.6},{x:0.35,y:0.65},{x:0.35,y:0.7},{x:0.35,y:0.72},{x:0.35,y:0.6},{x:0.3,y:0.65},{x:0.3,y:0.7},{x:0.3,y:0.72}],
+      'U': [{x:0.5,y:0.8},{x:0.4,y:0.75},{x:0.42,y:0.7},{x:0.45,y:0.65},{x:0.48,y:0.6},{x:0.52,y:0.55},{x:0.52,y:0.4},{x:0.52,y:0.3},{x:0.52,y:0.25},{x:0.48,y:0.55},{x:0.48,y:0.4},{x:0.48,y:0.3},{x:0.48,y:0.25},{x:0.45,y:0.65},{x:0.45,y:0.65},{x:0.45,y:0.65},{x:0.45,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65}],
+      'V': [{x:0.5,y:0.8},{x:0.4,y:0.75},{x:0.42,y:0.7},{x:0.45,y:0.65},{x:0.48,y:0.6},{x:0.55,y:0.55},{x:0.58,y:0.4},{x:0.62,y:0.3},{x:0.65,y:0.25},{x:0.45,y:0.55},{x:0.42,y:0.4},{x:0.38,y:0.3},{x:0.35,y:0.25},{x:0.45,y:0.65},{x:0.45,y:0.65},{x:0.45,y:0.65},{x:0.45,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65}],
+      'W': [{x:0.5,y:0.8},{x:0.4,y:0.75},{x:0.42,y:0.7},{x:0.45,y:0.65},{x:0.48,y:0.6},{x:0.58,y:0.55},{x:0.62,y:0.4},{x:0.68,y:0.3},{x:0.7,y:0.25},{x:0.5,y:0.55},{x:0.5,y:0.4},{x:0.5,y:0.3},{x:0.5,y:0.25},{x:0.42,y:0.55},{x:0.38,y:0.4},{x:0.32,y:0.3},{x:0.3,y:0.25},{x:0.4,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65},{x:0.4,y:0.65}],
+      'X': [{x:0.5,y:0.8},{x:0.4,y:0.75},{x:0.42,y:0.7},{x:0.45,y:0.65},{x:0.48,y:0.6},{x:0.55,y:0.55},{x:0.5,y:0.5},{x:0.45,y:0.52},{x:0.4,y:0.55},{x:0.48,y:0.65},{x:0.45,y:0.7},{x:0.42,y:0.75},{x:0.4,y:0.8},{x:0.43,y:0.65},{x:0.4,y:0.7},{x:0.37,y:0.75},{x:0.35,y:0.8},{x:0.38,y:0.65},{x:0.35,y:0.7},{x:0.32,y:0.75},{x:0.3,y:0.8}],
+      'Y': [{x:0.5,y:0.8},{x:0.6,y:0.75},{x:0.7,y:0.7},{x:0.75,y:0.65},{x:0.8,y:0.6},{x:0.5,y:0.65},{x:0.45,y:0.7},{x:0.4,y:0.72},{x:0.35,y:0.75},{x:0.45,y:0.65},{x:0.4,y:0.7},{x:0.35,y:0.72},{x:0.3,y:0.75},{x:0.4,y:0.65},{x:0.35,y:0.7},{x:0.3,y:0.72},{x:0.25,y:0.75},{x:0.3,y:0.6},{x:0.25,y:0.5},{x:0.2,y:0.4},{x:0.15,y:0.3}],
+      'Z': [{x:0.5,y:0.8},{x:0.4,y:0.75},{x:0.42,y:0.7},{x:0.45,y:0.65},{x:0.48,y:0.6},{x:0.5,y:0.55},{x:0.6,y:0.55},{x:0.7,y:0.55},{x:0.8,y:0.55},{x:0.48,y:0.65},{x:0.45,y:0.7},{x:0.42,y:0.75},{x:0.4,y:0.8},{x:0.43,y:0.65},{x:0.4,y:0.7},{x:0.37,y:0.75},{x:0.35,y:0.8},{x:0.38,y:0.65},{x:0.35,y:0.7},{x:0.32,y:0.75},{x:0.3,y:0.8}]
+    };
+
+    const signDescriptions = {
+        'A': 'Kepal tangan, jempol di samping jari telunjuk.',
+        'B': 'Empat jari tegak rapat, jempol ditekuk ke telapak.',
+        'C': 'Lengkungkan semua jari membentuk huruf C.',
+        'D': 'Tegakkan telunjuk, jari lain menyentuh jempol.',
+        'E': 'Tekuk semua ujung jari ke arah telapak.',
+        'F': 'Sentuhkan ujung telunjuk dan jempol (OK).',
+        'G': 'Jari telunjuk dan jempol sejajar horizontal.',
+        'H': 'Telunjuk dan jari tengah sejajar horizontal.',
+        'I': 'Hanya jari kelingking yang tegak.',
+        'J': 'Kelingking tegak sedikit dimiringkan.',
+        'K': 'Telunjuk tegak, tengah serong, jempol di antara keduanya.',
+        'L': 'Tegakkan telunjuk dan buka jempol lebar (L).',
+        'M': 'Tiga jari ditekuk di atas jempol.',
+        'N': 'Dua jari ditekuk di atas jempol.',
+        'O': 'Bentuk lingkaran dengan semua ujung jari.',
+        'P': 'Telunjuk tegak dan jari tengah sedikit ditekuk ke bawah, jempol berada di atas jari tengah.',
+        'Q': 'Sama seperti G tapi mengarah ke bawah.',
+        'R': 'Silangkan telunjuk dan jari tengah.',
+        'S': 'Kepal tangan dengan jempol di depan jari.',
+        'T': 'Jempol diselipkan di antara telunjuk dan tengah.',
+        'U': 'Telunjuk dan jari tengah tegak rapat.',
+        'V': 'Telunjuk dan jari tengah tegak terbuka (V).',
+        'W': 'Tiga jari tengah tegak terbuka.',
+        'X': 'Tekuk telunjuk seperti kail pancing.',
+        'Y': 'Tegakkan jempol dan kelingking saja.',
+        'Z': 'Tekuk telunjuk seperti kail pancing menghadap depan (kamera).'
+    };
+
+    let activeGuideLetter = null;
+
+    function generateAlphabetButtons() {
+        const container = document.getElementById('alphabet-btns');
+        container.innerHTML = "";
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(char => {
+            const btn = document.createElement('button');
+            btn.className = 'guide-letter-btn';
+            btn.innerText = char;
+            btn.onclick = () => setGuide(char, btn);
+            container.appendChild(btn);
+        });
+    }
+
+    function setGuide(char, btn) {
+        document.querySelectorAll('.guide-letter-btn').forEach(b => b.classList.remove('active'));
+        if(activeGuideLetter === char) {
+            activeGuideLetter = null;
+            document.getElementById('guide-hint-text').innerText = "";
+        } else {
+            activeGuideLetter = char;
+            btn.classList.add('active');
+            document.getElementById('guide-hint-text').innerText = signDescriptions[char] || "Ikuti kerangka tangan di layar";
+        }
+    }
+
+    function enterApp() {
+        const overlay = document.getElementById('welcome-overlay');
+        overlay.style.opacity = '0';
+        overlay.style.visibility = 'hidden';
+        document.body.classList.add('app-ready');
+        generateAlphabetButtons();
+    }
+
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const hiddenCanvas = document.createElement("canvas");
+    const hctx = hiddenCanvas.getContext("2d");
+
+    const statusText = document.getElementById("status-text");
+    const timerOverlay = document.getElementById("timer-overlay");
+    const sentenceOutput = document.getElementById("sentence-output");
+    const currentLetterDiv = document.getElementById("current-letter");
+    const stripPreview = document.getElementById("strip-preview");
+    
+    let currentMode = '';
+    let maxPhotos = 1;
+    let selectedThemeColor = '#ffffff';
+    let capturedPhotos = [];
+    let selectedPhotoIndex = -1;
+    let isCountingDown = false;
+    let sessionActive = false;
+    let detectedNow = "";
+    let letterBuffer = "";
+    let lastLetter = "";
+    let lastTime = 0;
+    const CONFIRM_TIME = 2000; 
+
+    const hands = new Hands({
+      locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+    });
+
+    hands.setOptions({ 
+      maxNumHands: 1, 
+      modelComplexity: 1, 
+      minDetectionConfidence: 0.8, 
+      minTrackingConfidence: 0.8 
+    });
+    hands.onResults(onResults);
+
+    function showFrameSelection(mode) {
+      currentMode = mode;
+      document.getElementById('landing-page').style.display = 'none';
+      document.getElementById('theme-selection').style.display = 'none';
+      document.getElementById('frame-selection').style.display = 'flex';
+    }
+
+    function chooseTheme(photoCount) {
+        maxPhotos = photoCount;
+        document.getElementById('frame-selection').style.display = 'none';
+        document.getElementById('theme-selection').style.display = 'flex';
+    }
+
+    function setTheme(color) {
+        selectedThemeColor = color;
+        startBooth(currentMode, maxPhotos);
+    }
+
+    function startBooth(mode, photoCount) {
+      currentMode = mode;
+      maxPhotos = photoCount;
+      sessionActive = true;
+      
+      document.getElementById('theme-selection').style.display = 'none';
+      document.getElementById('frame-selection').style.display = 'none';
+      document.getElementById('landing-page').style.display = 'none';
+      document.getElementById('booth-container').style.display = 'block';
+
+    // Targetkan container preview (box-section terakhir sebelum tombol Exit)
+    const previewSection = document.getElementById('strip-preview').parentElement;
+
+    if(mode === 'sign') {
+      document.getElementById('sign-guide').style.display = 'block';
+      document.getElementById('sign-controls').style.display = 'block';
+      document.getElementById('right-panel-title').innerText = "DETECTED LETTER";
+      statusText.innerText = "SIGN TO TEXT MODE";
+      
+      // SEMBUNYIKAN PREVIEW PADA MODE SIGN
+      previewSection.style.display = 'none'; 
+    } else {
+      document.getElementById('sign-guide').style.display = 'none';
+      document.getElementById('sign-controls').style.display = 'none';
+      document.getElementById('current-letter').style.display = 'none';
+      document.getElementById('timer-actions').style.display = 'block';
+      document.getElementById('right-panel-title').innerText = "PHOTO ACTIONS";
+      
+      document.getElementById('context-title').innerText = "PROGRESS";
+      document.getElementById('sentence-output').style.display = 'none';
+      document.getElementById('photo-count-status').style.display = 'block';
+      document.getElementById('total-count').innerText = maxPhotos;
+      
+      statusText.innerText = "WAITING FOR PALM ✋";
+
+      // TAMPILKAN KEMBALI PREVIEW PADA MODE FOTO (TIMER)
+      previewSection.style.display = 'block';
+    }
+
+    const camera = new Camera(video, {
+      onFrame: async () => { await hands.send({ image: video }); },
+      width: 1280, height: 720
+    });
+    camera.start();
+    }
+
+    function onResults(results) {
+      canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+      hiddenCanvas.width = canvas.width; hiddenCanvas.height = canvas.height;
+
+      ctx.save();
+      ctx.scale(-1, 1);
+      ctx.translate(-canvas.width, 0);
+      ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+
+      hctx.save();
+      hctx.scale(-1, 1);
+      hctx.translate(-hiddenCanvas.width, 0);
+      hctx.drawImage(results.image, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
+      hctx.restore();
+
+      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        const landmarks = results.multiHandLandmarks[0];
+        drawConnectors(ctx, landmarks, HAND_CONNECTIONS, { color: '#000', lineWidth: 2 });
+        drawLandmarks(ctx, landmarks, { color: '#c5a059', lineWidth: 1, radius: 2 });
+
+        if (currentMode === 'timer') {
+          if (checkIsPalm(landmarks) && !isCountingDown && sessionActive && capturedPhotos.length < maxPhotos) {
+              startCountdown();
+          }
+        } else {
+          detectedNow = complexSignLogic(landmarks);
+          currentLetterDiv.innerText = detectedNow;
+          handleAutoAdd(detectedNow);
+        }
+      } else {
+        if(currentMode === 'sign') currentLetterDiv.innerText = "-";
+      }
+      ctx.restore();
+    }
+
+    // --- LOGIKA HURUF A-Z ---
+    function complexSignLogic(lm) {
+        if (!lm || lm.length < 21) return "...";
+
+      const dist = (p1, p2) => Math.hypot(lm[p1].x - lm[p2].x, lm[p1].y - lm[p2].y);
+        
+      const isThumbUp = lm[4].x < lm[3].x;
+      const isIndexUp = lm[8].y < lm[6].y;
+      const isMiddleUp = lm[12].y < lm[10].y;
+      const isRingUp = lm[16].y < lm[14].y;
+      const isPinkyUp = lm[20].y < lm[18].y;
+      const gapX = Math.abs(lm[4].x - lm[8].x);
+      const gapY = Math.abs(lm[4].y - lm[8].y);
+        
+      // --- ARAH (Kanan/Kiri) ---
+      const indexHorizontalLength = Math.abs(lm[8].x - lm[5].x);
+      const middleHorizontalLength = Math.abs(lm[12].x - lm[9].x);
+      const isIndexPointingSide = indexHorizontalLength > 0.15 && Math.abs(lm[8].y - lm[5].y) < 0.15;
+      const isMiddlePointingSide = middleHorizontalLength > 0.15 && Math.abs(lm[12].y - lm[9].y) < 0.15;
+      const thumbTip = lm[4];
+      const indexTip = lm[8];
+      const indexBase = lm[5];
+      const handScale = dist(8, 5); 
+      
+      // --- HURUF X ---
+      const isIndexPartiallyFolded = lm[8].y > lm[6].y && lm[8].y < lm[5].y;
+      const isOthersTight = !isMiddleUp && !isRingUp && !isPinkyUp;
+        if (isIndexPartiallyFolded && isOthersTight) {
+            const indexHookDist = dist(8, 7);
+            if (indexHookDist < handScale * 0.4) {
+                return "X";
+            }
+        }
+
+      // --- HURUF Z ---
+      const isIndexPointedForward = lm[8].y < lm[5].y && dist(8, 5) > handScale * 0.4;
+      const isThumbClosed = dist(4, 11) < handScale * 0.6 || dist(4, 10) < handScale * 0.6;
+        if (isIndexPointedForward && isThumbClosed && !isMiddleUp && !isRingUp && !isPinkyUp) {
+            if (lm[8].y < lm[12].y && lm[8].y < lm[16].y) {
+                return "Z";
+            }
+        }
+
+      // --- HURUF I ---
+      const pinkyTip = lm[20];
+      const pinkyBase = lm[17];
+      const isPinkyTheHighest = pinkyTip.y < indexTip.y && 
+                                pinkyTip.y < lm[12].y && 
+                                pinkyTip.y < lm[16].y && 
+                                pinkyTip.y < thumbTip.y;
+      const isVertical = Math.abs(pinkyTip.x - pinkyBase.x) < 0.05;
+      const isNotWide = Math.abs(thumbTip.x - pinkyBase.x) < handScale * 0.8;
+        if (isPinkyTheHighest && isVertical && isNotWide) {
+            if (indexTip.y > lm[6].y) {
+                return "I";
+            }
+        }
+
+      // --- HURUF J & Y ---
+      const isPinkyStrictlyUp = lm[20].y < lm[18].y && lm[20].y < lm[17].y;
+      const isOthersDown = lm[8].y > lm[6].y && lm[12].y > lm[10].y;
+        if (isPinkyStrictlyUp && isOthersDown) {
+            const thumbPinkyDist = dist(4, 20);
+            // Huruf Y
+            const pinkyLean = lm[20].x - lm[17].x;
+            if (thumbPinkyDist > handScale * 1.5) {
+                return "Y";
+            }
+            // Huruf J
+            if (Math.abs(pinkyLean) > 0.08) {
+                return "J";
+            }
+        }
+
+      // --- HURUF R, K, U, V ---
+        if (isIndexUp && isMiddleUp && !isRingUp && !isPinkyUp) {
+        // Huruf R
+          const isCrossed = (lm[8].x > lm[12].x && lm[5].x < lm[9].x) || 
+                            (lm[8].x < lm[12].x && lm[5].x > lm[9].x);
+          const horizontalGap = Math.abs(lm[8].x - lm[12].x);
+          if (isCrossed || horizontalGap < 0.02) {
+              return "R";
+          }
+          // Huruf K
+          if (dist(4, 11) < handScale * 0.45) {
+              return "K";
+          }
+          // Huruf U dan V
+          return dist(8, 12) < handScale * 0.4 ? "U" : "V";
+        }
+
+      // --- HURUF O ---
+      const isClosingO = dist(4, 8) < handScale * 0.6 && 
+                        dist(4, 12) < handScale * 0.6 && 
+                        dist(4, 16) < handScale * 0.6;
+        if (isClosingO && !isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp) {
+            if (dist(8, 5) > handScale * 0.4) {
+                return "O";
+            }
+        }
+
+      // --- HURUF H ---
+      const isIndexExtendedH = dist(8, 5) > handScale * 0.8;
+      const isMiddleExtendedH = dist(12, 9) > handScale * 0.7;
+      const isHorizontalH = Math.abs(lm[8].x - lm[5].x) > Math.abs(lm[8].y - lm[5].y) * 1.5;
+        if (isIndexExtendedH && isMiddleExtendedH && isHorizontalH && !isRingUp && !isPinkyUp) {
+            // Pastikan jari telunjuk dan tengah berdekatan (sejajar)
+            if (Math.abs(lm[8].y - lm[12].y) < handScale * 0.4) {
+                return "H";
+            }
+        }
+
+      // --- HURUF Q ---
+      const isIndexPointingDown = lm[8].y > lm[6].y;
+      const isThumbPointingDown = lm[4].y > lm[2].y;
+        if (isIndexPointingDown && isThumbPointingDown && !isMiddleUp && !isRingUp && !isPinkyUp) {
+            const pinchDist = dist(4, 8);
+            const isVerticalOrientation = lm[8].y > lm[5].y;
+            if (pinchDist < handScale * 0.6 && isVerticalOrientation) {
+                return "Q";
+            }
+        }
+
+      // --- HURUF P ---
+      const isIndexExtendedP = dist(8, 5) > handScale * 0.8;
+      const isMiddleFoldedP = lm[12].y > lm[10].y;
+        if (isIndexExtendedP && isMiddleFoldedP && !isRingUp && !isPinkyUp) {
+            const isPointingDownOrForward = lm[8].y > lm[6].y - 0.05;
+            const thumbOnMiddleFinger = dist(4, 11) < handScale * 0.45;
+            if (isPointingDownOrForward && thumbOnMiddleFinger) {
+                return "P";
+            }
+        }
+
+      // --- HURUF I & Y ---
+        if (isPinkyUp && !isIndexUp && !isMiddleUp) {
+            const thumbPinkyDist = dist(4, 20);
+            // Huruf Y 
+            if (thumbPinkyDist > handScale * 1.5) {
+                return "Y"; 
+            } 
+            // Huruf I 
+            else {
+                return "I";
+            }
+        }
+
+      // --- HURUF K ---
+      const thumbToMiddleJoint = dist(4, 10);
+        if (thumbToMiddleJoint < handScale * 0.45) {
+          return "K";
+        }
+          
+      // --- HURUF H & G ---
+      const isIndexExtendedHG = dist(8, 5) > handScale * 0.8;
+      const isIndexHorizontal = Math.abs(lm[8].x - lm[5].x) > Math.abs(lm[8].y - lm[5].y) * 1.5;
+        if (isIndexExtendedHG && isIndexHorizontal && !isRingUp && !isPinkyUp) {
+            // HURURF H
+            const isMiddleExtendedH = dist(12, 9) > handScale * 0.7;
+            const isMiddleHorizontal = Math.abs(lm[12].x - lm[9].x) > Math.abs(lm[12].y - lm[9].y) * 1.5;
+            const isFingersParallel = Math.abs(lm[8].y - lm[12].y) < handScale * 0.3;
+            // HURUF G
+            if (!isMiddleUp) {
+                return "G";
+            }
+        }
+      
+      // --- HURUF B ---
+      // HURUF B
+        if (isIndexUp && isMiddleUp && isRingUp && isPinkyUp) {
+            const fingerSpread = dist(8, 20);   
+            if (fingerSpread < handScale * 0.8) {
+                return "B";
+            }
+        }
+
+      // --- HURUF T ---   
+      const distToTZone = dist(4, 7); 
+        if (distToTZone < handScale * 0.6) {
+            return "T";
+        }
+
+      // --- HURUF W ---
+        if (isIndexUp && isMiddleUp && isRingUp && !isPinkyUp) {
+            return "W";
+        }
+
+      // Kondisi Mengepal (untuk M dan N)
+      const isFist = !isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp;
+      // --- HURURF M & N ---
+      if (!isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp) {
+          const thumbTip = lm[4];
+          const indexMCP = lm[5];  // Pangkal Telunjuk
+          const middleMCP = lm[9]; // Pangkal Tengah
+          const ringMCP = lm[13];  // Pangkal Manis
+          const pinkyMCP = lm[17]; // Pangkal Kelingking
+        // HURUF M 
+          const isM = (thumbTip.x > ringMCP.x && thumbTip.x < pinkyMCP.x) || 
+                      (thumbTip.x < ringMCP.x && thumbTip.x > pinkyMCP.x);
+            if (isM) {
+                return "M";
+            }
+        // HURUF N
+          const isN = (thumbTip.x > middleMCP.x && thumbTip.x < ringMCP.x) || 
+                      (thumbTip.x < middleMCP.x && thumbTip.x > ringMCP.x);
+            if (isN) {
+                return "N";
+            }
+      }
+
+      // --- HURUF Y ---
+      const isYSpread = dist(4, 20) > handScale * 1.5;
+      const isMiddleThreeFolded = !isIndexUp && !isMiddleUp && !isRingUp;
+        if (isYSpread && isPinkyUp && isMiddleThreeFolded) {
+            return "Y";
+        }
+
+      // --- HURUF L ---
+      const isOthersFolded = !isMiddleUp && !isRingUp && !isPinkyUp;
+        if (isIndexUp && isOthersFolded) {
+            if (gapX > 0.15 && Math.abs(lm[4].x - lm[5].x) > 0.1) {
+                return "L";
+            }
+        }
+
+      // --- HURUF F ---
+      const fingersUpForF = lm[12].y < lm[9].y && lm[16].y < lm[13].y && lm[20].y < lm[17].y;
+      const isCircleFormed = dist(4, 8) < 0.1 || dist(4, 7) < 0.1;
+        if (isCircleFormed && fingersUpForF) {
+          return "F";
+        }
+
+      // --- HURUF A, S, E, C ---
+        if (!isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp) {
+        // HURUF C
+          if (gapX > 0.18 || gapY > 0.18) return "C";
+          // HURUF E
+          if (lm[4].y > lm[8].y && lm[4].y > lm[12].y) return "E";
+            const thumbTipX = lm[4].x;
+            const indexMCPX = lm[5].x; 
+            const pinkyMCPX = lm[17].x;
+            const isThumbOverFingers = (thumbTipX > indexMCPX && thumbTipX < pinkyMCPX) || 
+                                      (thumbTipX < indexMCPX && thumbTipX > pinkyMCPX);
+              if (isThumbOverFingers) {
+                  return "S"; 
+                } else {
+                  return "A";
+              }
+        }
+
+      // ---  HURUF D & L  ---
+        if (isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp) {
+            const handScale = dist(8, 5); 
+            const thumbTip = lm[4];
+            const indexMCP = lm[5];
+            const distToCircleCenter = dist(4, 10); 
+            // HURUF D
+            if (distToCircleCenter < handScale * 0.5) {
+                return "D"; 
+            }
+
+            // HURUF L 
+            const isThumbOut = thumbTip.x < indexMCP.x - 0.05 || thumbTip.x > lm[17].x + 0.05;
+            if (isThumbOut && gapX > 0.12) {
+                return "L";
+            }
+            return "D";
+        }
+
+      return "...";
+    }
+
+    function handleAutoAdd(letter) {
+      if (letter === "..." || letter === "-" || letter === "") return;
+      if (letter === lastLetter) {
+        if (Date.now() - lastTime > CONFIRM_TIME) {
+          addLetterManual();
+          lastTime = Date.now() + 1000; 
+        }
+      } else {
+        lastLetter = letter;
+        lastTime = Date.now();
+      }
+    }
+
+    function addLetterManual() {
+      if(detectedNow && detectedNow !== "..." && detectedNow !== "-") {
+        letterBuffer += detectedNow;
+        sentenceOutput.innerText = letterBuffer;
+      }
+    }
+
+    function addSpace() { letterBuffer += " "; sentenceOutput.innerText = letterBuffer; }
+    function deleteLast() { letterBuffer = letterBuffer.slice(0, -1); sentenceOutput.innerText = letterBuffer; }
+    function clearAll() { letterBuffer = ""; sentenceOutput.innerText = ""; }
+
+    function checkIsPalm(lm) {
+      const tipIds = [8, 12, 16, 20];
+      const pipIds = [6, 10, 14, 18];
+      let up = 0;
+      for (let i = 0; i < 4; i++) if (lm[tipIds[i]].y < lm[pipIds[i]].y) up++;
+      return up >= 4; 
+    }
+
+    function startCountdown() {
+      isCountingDown = true;
+      let count = 3;
+      timerOverlay.style.display = 'block';
+      timerOverlay.innerText = count;
+      statusText.innerText = "SMILE! 📸";
+      const itv = setInterval(() => {
+        count--;
+        timerOverlay.innerText = count;
+        if (count === 0) { 
+            clearInterval(itv); 
+            takePhoto(); 
+        }
+      }, 1000);
+    }
+
+    function takePhoto() {
+      timerOverlay.style.display = 'none';
+      const dataUrl = hiddenCanvas.toDataURL("image/png");
+      capturedPhotos.push(dataUrl);
+      updatePreview();
+      if (capturedPhotos.length < maxPhotos) {
+        statusText.innerText = "PHOTO CAPTURED! NEXT POSE? ✋";
+        setTimeout(() => { isCountingDown = false; }, 1500);
+      } else {
+        statusText.innerText = "LIMIT REACHED. DELETE OR FINISH?";
+        document.getElementById('finish-btn').style.display = 'block';
+      }
+    }
+
+    function selectPhoto(index) {
+        selectedPhotoIndex = index;
+        const containers = document.querySelectorAll('.preview-img-container');
+        containers.forEach((c, i) => {
+            if(i === index) c.classList.add('selected');
+            else c.classList.remove('selected');
+        });
+    }
+
+    function deleteSelectedPhoto() {
+        if (capturedPhotos.length === 0) return;
+        let indexToRemove = selectedPhotoIndex !== -1 ? selectedPhotoIndex : capturedPhotos.length - 1;
+        capturedPhotos.splice(indexToRemove, 1);
+        selectedPhotoIndex = -1;
+        updatePreview();
+        isCountingDown = false;
+        statusText.innerText = "DELETED. READY FOR NEW POSE? ✋";
+    }
+
+    function updatePreview() {
+        stripPreview.innerHTML = "";
+        capturedPhotos.forEach((src, index) => {
+            const container = document.createElement('div');
+            container.className = "preview-img-container";
+            container.onclick = () => selectPhoto(index);
+            const img = document.createElement('img');
+            img.src = src;
+            container.appendChild(img);
+            stripPreview.appendChild(container);
+        });
+        document.getElementById('captured-count').innerText = capturedPhotos.length;
+        document.getElementById('finish-btn').style.display = capturedPhotos.length === maxPhotos ? 'block' : 'none';
+    }
+
+    function showFinalGallery() {
+      sessionActive = false;
+      document.getElementById('booth-container').style.display = 'none';
+      document.getElementById('result-page').style.display = 'flex';
+      const container = document.getElementById('final-strip-container');
+      container.innerHTML = "";
+      container.style.backgroundColor = selectedThemeColor;
+      capturedPhotos.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        container.appendChild(img);
+      });
+      if(currentMode === 'sign' && letterBuffer) {
+        const p = document.createElement('p');
+        p.innerText = "Message: " + letterBuffer;
+        p.style.fontSize = "24px";
+        p.style.textAlign = "center";
+        p.style.fontFamily = "var(--sketch-font)";
+        container.appendChild(p);
+      }
+    }
+  </script>
+</body>
+</html>
